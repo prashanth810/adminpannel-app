@@ -10,11 +10,19 @@ const Categoryscreen = () => {
     navigation.navigate("addcategory");
   };
 
+  const handleproducts = () => {
+    navigation.navigate("products", {
+      categoryId: "1",
+      categoryname: "Piza"
+    })
+  }
 
   return (
     <View className='flex-1 bg-gray-50'>
       <View className='py-4 px-3 flex-row items-center justify-between'>
-        <Text className='text-xl font-bold'> Categories </Text>
+        <TouchableOpacity onPress={handleproducts}>
+          <Text className='text-xl font-bold' > Categories </Text>
+        </TouchableOpacity>
 
         <TouchableOpacity className='bg-blue-500 px-3 py-2 flex-row gap-2 rounded-lg' onPress={handleaddcat}>
           <Text>

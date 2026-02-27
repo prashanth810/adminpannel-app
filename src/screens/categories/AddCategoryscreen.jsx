@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { Entypo } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 
 const AddCategoryscreen = () => {
     const [formdata, setFormdata] = useState({
@@ -17,6 +18,8 @@ const AddCategoryscreen = () => {
     });
 
     const [errors, setErrors] = useState({});
+
+    const navigation = useNavigation();
 
     const handlechange = (key, value) => {
         setFormdata(prev => ({ ...prev, [key]: value }));
@@ -61,8 +64,10 @@ const AddCategoryscreen = () => {
     const handleSubmit = () => {
         if (!validate()) return;
 
-        Alert.alert('Success', 'Category Created Successfully');
+        // Alert.alert('Success', 'Category Created Successfully');
         console.log(formdata);
+        navigation.goBack();
+
     };
 
     const isDisabled = !formdata.name.trim() || !formdata.image;

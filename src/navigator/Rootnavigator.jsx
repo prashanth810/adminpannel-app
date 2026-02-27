@@ -46,12 +46,12 @@ const Rootnavigator = () => {
             />
             <Tab.Screen
                 name="orders"
-                component={Usernavigator}
+                component={Ordernavigator}
                 options={{ title: 'Orders' }}
             />
             <Tab.Screen
                 name="users"
-                component={Ordernavigator}
+                component={Usernavigator}
                 options={{ title: 'Users' }}
             />
         </Tab.Navigator>
