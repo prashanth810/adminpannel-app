@@ -73,7 +73,7 @@ const Addproducts = () => {
 
     };
 
-    const isDisabled = !formdata.name.trim() || !formdata.image;
+    const isDisabled = !formdata.name.trim() || !formdata.image || !formdata.price || !formdata.description;
 
     return (
         <KeyboardAvoidingView
@@ -146,7 +146,7 @@ const Addproducts = () => {
                                     onChangeText={text => handlechange('price', text)}
                                     keyboardType='numeric'
                                     placeholder="E.g 199..."
-                                    className={`border rounded p-3 mt-2 ${errors.name ? 'border-red-500' : 'border-gray-300'
+                                    className={`border rounded p-3 mt-2 ${errors.price ? 'border-red-500' : 'border-gray-300'
                                         }`}
                                 />
                             </View>

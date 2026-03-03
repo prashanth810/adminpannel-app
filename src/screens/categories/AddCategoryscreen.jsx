@@ -10,16 +10,19 @@ import {
 import * as ImagePicker from 'expo-image-picker';
 import { Entypo } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { useDispatch } from 'react-redux';
+import { fetchallcategories, handlecreatecategories } from '../../redux/slices/CategorySlice';
+
 
 const AddCategoryscreen = () => {
     const [formdata, setFormdata] = useState({
         name: '',
         image: null,
     });
-
     const [errors, setErrors] = useState({});
-
     const navigation = useNavigation();
+
+    const dispatch = useDispatch();
 
     const handlechange = (key, value) => {
         setFormdata(prev => ({ ...prev, [key]: value }));
@@ -61,13 +64,18 @@ const AddCategoryscreen = () => {
         }
     };
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         if (!validate()) return;
 
-        // Alert.alert('Success', 'Category Created Successfully');
-        console.log(formdata);
-        navigation.goBack();
+        const result = await dispatch(handlecreatecategories(formdata));
 
+        if (handlecreatecategories.fulfilled.match(result)) {
+            Alert.alert("Success", "Category Created Successfully");
+            dispatch(fetchallcategories());
+            navigation.goBack();
+        } else {
+            Alert.alert("Error", result.payload || "Something went wrong");
+        }
     };
 
     const isDisabled = !formdata.name.trim() || !formdata.image;
