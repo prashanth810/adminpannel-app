@@ -1,20 +1,27 @@
-import { ScrollView, StyleSheet, Image, Text, TextInput, TouchableOpacity, View, KeyboardAvoidingView, TouchableWithoutFeedback, ScrollViewBase, Platform, Keyboard } from 'react-native'
+import { ScrollView, StyleSheet, Image, Text, TextInput, TouchableOpacity, View, KeyboardAvoidingView, TouchableWithoutFeedback, ScrollViewBase, Platform, Keyboard, Alert } from 'react-native'
 import React, { useState } from 'react'
 import { useNavigation, useRoute } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
 import { Entypo } from '@expo/vector-icons';
+import { useDispatch } from 'react-redux';
+import { createproducts, fetchProductsByCategory } from '../../redux/slices/ProductSlice';
 
 const Addproducts = () => {
+    const route = useRoute();
+    const { categoryId } = route?.params;
     const [formdata, setFormdata] = useState({
         name: "",
         image: "",
         price: "",
         description: "",
+        stock: "",
+        categoryId: categoryId,   // ✅ pulled from route.params
     });
+
     const [errors, setErrors] = useState({});
     const navigation = useNavigation();
-    const route = useRoute();
-    const { categoryId } = route?.params;
+
+    const dispatch = useDispatch();
 
     const handlechange = (key, value) => {
         setFormdata(prev => ({ ...prev, [key]: value }));
@@ -36,7 +43,11 @@ const Addproducts = () => {
         }
 
         if (!formdata.description) {
-            newErrors.description = 'Category description is required';
+            newErrors.description = 'description is required';
+        }
+
+        if (!formdata.stock) {
+            newErrors.stock = 'stock is required';
         }
 
         setErrors(newErrors);
@@ -64,16 +75,23 @@ const Addproducts = () => {
         }
     };
 
-    const handleSubmit = () => {
+
+    const handleSubmit = async () => {
         if (!validate()) return;
 
-        // Alert.alert('Success', 'Category Created Successfully');
-        console.log(formdata);
-        navigation.goBack();
+        const result = await dispatch(createproducts(formdata));
 
+        if (createproducts.fulfilled.match(result)) {
+            Alert.alert("Success", "Product Created");
+            dispatch(fetchProductsByCategory(categoryId)); // ✅ refreshes the list
+            navigation.goBack();                           // ✅ goes back to Productslist
+        } else {
+            Alert.alert("Error", result.payload);
+        }
     };
 
-    const isDisabled = !formdata.name.trim() || !formdata.image || !formdata.price || !formdata.description;
+
+    const isDisabled = !formdata.name.trim() || !formdata.image || !formdata.price || !formdata.description || !formdata.stock;
 
     return (
         <KeyboardAvoidingView
@@ -134,6 +152,18 @@ const Addproducts = () => {
                                     value={formdata.name}
                                     onChangeText={text => handlechange('name', text)}
                                     placeholder="E.g Apple..."
+                                    className={`border rounded p-3 mt-2 ${errors.name ? 'border-red-500' : 'border-gray-300'
+                                        }`}
+                                />
+                            </View>
+
+                            <View>
+                                <Text> Stock </Text>
+                                <TextInput
+                                    value={formdata.stock}
+                                    onChangeText={text => handlechange('stock', text)}
+                                    placeholder="E.g 125..."
+                                    keyboardType='numeric'
                                     className={`border rounded p-3 mt-2 ${errors.name ? 'border-red-500' : 'border-gray-300'
                                         }`}
                                 />

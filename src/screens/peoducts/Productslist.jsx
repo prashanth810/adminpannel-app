@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { ActivityIndicator, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 // import { AntDesign } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
@@ -32,8 +32,16 @@ const Productslist = () => {
     const renderProducts = ({ item }) => {
         return (
             <View style={styles.productCard}>
-                <Text style={styles.productName}>{item.name}</Text>
-                <Text>₹ {item.price}</Text>
+                <View style={styles.products}>
+                    <View>
+                        <Image source={{ uri: item.imageurl }} width={55} height={55} resizeMode='cover' />
+                    </View>
+                    <View>
+                        <Text style={styles.productName}>{item.name}</Text>
+                        <Text style={{ fontSize: 12, color: "#b55b02" }}> Stock : {item.stock}</Text>
+                        <Text style={{ color: "#02b53b", fontSize: 15, fontWeight: "800" }}> ₹ {item.price}</Text>
+                    </View>
+                </View>
             </View>
         );
     };
@@ -83,7 +91,12 @@ const styles = StyleSheet.create({
         elevation: 2,
     },
     productName: {
-        fontSize: 16,
-        fontWeight: "600",
+        fontSize: 15,
+        fontWeight: "400",
+    },
+    products: {
+        flexDirection: "row",
+        alignItems: "center",
+        columnGap: 10,
     },
 });

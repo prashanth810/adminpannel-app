@@ -64,8 +64,13 @@ const Categoryscreen = () => {
           </View>
         </View>
         <View style={styles.right}>
-          <TouchableOpacity> <AntDesign name="edit" style={styles.edit} /> </TouchableOpacity>
-          <TouchableOpacity> <AntDesign name="delete" style={styles.delete} /> </TouchableOpacity>
+          <TouchableOpacity>
+            <AntDesign name="edit" size={18} color="green" />
+          </TouchableOpacity>
+
+          <TouchableOpacity>
+            <AntDesign name="delete" size={18} color="red" />
+          </TouchableOpacity>
         </View>
       </TouchableOpacity>
     );
@@ -138,9 +143,9 @@ const styles = StyleSheet.create({
   },
   cat: {
     backgroundColor: "#f2f2f2",
-    width: 60,
-    height: 60,
-    borderRadius: 20,
+    width: 52,
+    height: 52,
+    borderRadius: 30,
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 8
@@ -160,14 +165,6 @@ const styles = StyleSheet.create({
   prods: {
     fontSize: 12,
     color: "#8a8888"
-  },
-  edit: {
-    color: "green",
-    fontSize: 18,
-  },
-  delete: {
-    fontSize: 18,
-    color: "red",
   },
   refreh: {
     flexDirection: "row",
