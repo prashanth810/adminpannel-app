@@ -2,10 +2,9 @@ import Baseurl from "../utilities/Baseurl";
 
 
 
-export const getallcategories = () => {
-    return Baseurl.get(`/categories`);
+export const getallcategories = (page = 1, limit = 10) => {
+    return Baseurl.get(`/categories`, { params: { page, limit } });
 }
-
 // create categories
 export const createcategory = async (data) => {
     const formData = new FormData();
@@ -24,3 +23,9 @@ export const createcategory = async (data) => {
         },
     });
 };
+
+
+// dete category
+export const handledeletecat = (id) => {
+    return Baseurl.delete(`/category/${id}`);
+}

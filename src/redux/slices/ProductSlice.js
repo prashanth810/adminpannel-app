@@ -4,10 +4,13 @@ import { handlecreateproducts, handlegetproducts } from "../services/ProductServ
 // fetch products by category id
 export const fetchProductsByCategory = createAsyncThunk(
     "products/fetchByCategory",
-    async (categoryId, thunkAPI) => {
+    async ({ categoryId, page = 1, limit = 10 }, thunkAPI) => {
         try {
-            const res = await handlegetproducts(categoryId);
-            return res.data.data;
+            const res = await handlegetproducts(categoryId, page, limit);
+            return {
+                data: res.data.data,
+                page: res.data.page,
+            };
         } catch (error) {
             return thunkAPI.rejectWithValue(error.message);
         }
@@ -30,6 +33,8 @@ const initialState = {
         catpro: [],
         catprodloading: false,
         catproderror: null,
+        page: 1,
+        hasMore: true,
     },
     createdproducts: {
         createdprod: {},
@@ -52,7 +57,16 @@ const ProductSlice = createSlice({
             })
             .addCase(fetchProductsByCategory.fulfilled, (state, action) => {
                 state.categoryprods.catprodloading = false;
-                state.categoryprods.catpro = action.payload;
+                const { data, page } = action.payload;
+
+                if (page === 1) {
+                    state.categoryprods.catpro = data;         // fresh / first load
+                } else {
+                    state.categoryprods.catpro = [...state.categoryprods.catpro, ...data]; // append
+                }
+
+                state.categoryprods.page = page;
+                state.categoryprods.hasMore = data.length === 10; // false when last page
             })
             .addCase(fetchProductsByCategory.rejected, (state, action) => {
                 state.categoryprods.catprodloading = false;

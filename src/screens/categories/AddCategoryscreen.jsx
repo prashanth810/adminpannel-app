@@ -10,8 +10,9 @@ import {
 import * as ImagePicker from 'expo-image-picker';
 import { Entypo } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { fetchallcategories, handlecreatecategories } from '../../redux/slices/CategorySlice';
+import Loadeing from '../../components/Loadeing';
 
 
 const AddCategoryscreen = () => {
@@ -20,6 +21,7 @@ const AddCategoryscreen = () => {
         image: null,
     });
     const [errors, setErrors] = useState({});
+    const [loader, setLoader] = useState(false);
     const navigation = useNavigation();
 
     const dispatch = useDispatch();
@@ -66,7 +68,7 @@ const AddCategoryscreen = () => {
 
     const handleSubmit = async () => {
         if (!validate()) return;
-
+        setLoader(true);
         const result = await dispatch(handlecreatecategories(formdata));
 
         if (handlecreatecategories.fulfilled.match(result)) {
@@ -76,6 +78,7 @@ const AddCategoryscreen = () => {
         } else {
             Alert.alert("Error", result.payload || "Something went wrong");
         }
+        setLoader(false);
     };
 
     const isDisabled = !formdata.name.trim() || !formdata.image;
@@ -144,23 +147,27 @@ const AddCategoryscreen = () => {
             )}
 
             {/* Submit Button */}
-            <TouchableOpacity
-                onPress={handleSubmit}
-                disabled={isDisabled}
-                className={`mt-5 py-3 rounded flex-row items-center justify-center ${isDisabled ? 'bg-gray-300' : 'bg-green-600'
-                    }`} >
-                <Entypo
-                    name="save"
-                    size={18}
-                    color={isDisabled ? '#6B7280' : '#fff'}
-                />
-                <Text
-                    className={`ml-2 font-semibold ${isDisabled ? 'text-gray-500' : 'text-white'
-                        }`}
-                >
-                    Create Category
-                </Text>
-            </TouchableOpacity>
+            {loader ? (
+                <Loadeing loader={loader} />
+            ) : (
+                <TouchableOpacity
+                    onPress={handleSubmit}
+                    disabled={isDisabled}
+                    className={`mt-5 py-3 rounded flex-row items-center justify-center ${isDisabled ? 'bg-gray-300' : 'bg-green-600'
+                        }`} >
+                    <Entypo
+                        name="save"
+                        size={18}
+                        color={isDisabled ? '#6B7280' : '#fff'}
+                    />
+                    <Text
+                        className={`ml-2 font-semibold ${isDisabled ? 'text-gray-500' : 'text-white'
+                            }`}
+                    >
+                        Create Category
+                    </Text>
+                </TouchableOpacity>
+            )}
         </View>
     );
 };

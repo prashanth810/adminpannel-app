@@ -1,10 +1,15 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { createcategory, getallcategories } from "../services/CategoryService";
+import { createcategory, getallcategories, handledeletecat } from "../services/CategoryService";
 
-export const fetchallcategories = createAsyncThunk("categories/fetchcategories", async (_, thunkAPI) => {
+// categories fetch all
+export const fetchallcategories = createAsyncThunk("categories/fetchcategories", async ({ page = 1, limit = 10 } = {}, thunkAPI) => {
     try {
-        const response = await getallcategories();
-        return response.data.data;
+        const response = await getallcategories(page, limit);
+        return {
+            data: response.data.data,
+            page: response.data.page,
+            totalPages: response.data.totalPages,
+        };
     }
     catch (error) {
         return thunkAPI.rejectWithValue(error.message);
@@ -27,17 +32,33 @@ export const handlecreatecategories = createAsyncThunk(
     }
 );
 
+// delete category
+export const deletecategory = createAsyncThunk("category/delete", async (id, thunkAPI) => {
+    try {
+        await handledeletecat(id);
+        return id;
+    }
+    catch (error) {
+        return thunkAPI.rejectWithValue(error.message);
+    }
+})
 
 const initialState = {
     categorydata: {
         category: [],
         categoryloading: false,
         categoryerror: null,
+        page: 1,
+        hasMore: true,
     },
     createscat: {
         catdata: {},
         catloading: false,
         caterror: null,
+    },
+    deletecat: {                  // ← add this
+        deleteloading: false,
+        deleteerror: null,
     }
 };
 
@@ -47,13 +68,23 @@ const CategorySlice = createSlice({
     reducers: {},
     extraReducers: (builder) => {
         builder
+            // fetch all categories
             .addCase(fetchallcategories.pending, (state) => {
                 state.categorydata.categoryloading = true;
                 state.categorydata.categoryerror = null;
             })
             .addCase(fetchallcategories.fulfilled, (state, action) => {
                 state.categorydata.categoryloading = false;
-                state.categorydata.category = action.payload;
+                const { data, page, totalPages } = action.payload;
+
+                if (page === 1) {
+                    state.categorydata.category = data;                                     // fresh load
+                } else {
+                    state.categorydata.category = [...state.categorydata.category, ...data]; // append
+                }
+
+                state.categorydata.page = page;
+                state.categorydata.hasMore = page < totalPages;
             })
             .addCase(fetchallcategories.rejected, (state, action) => {
                 state.categorydata.categoryloading = false;
@@ -72,6 +103,20 @@ const CategorySlice = createSlice({
             .addCase(handlecreatecategories.rejected, (state, action) => {
                 state.createscat.catloading = false;
                 state.createscat.caterror = action.payload;
+            })
+
+            // delete category
+            .addCase(deletecategory.pending, (state) => {
+                state.deletecat.deleteloading = true;
+                state.deletecat.deleteerror = null;
+            })
+            .addCase(deletecategory.fulfilled, (state, action) => {
+                state.deletecat.deleteloading = false;
+                state.categorydata.category = state.categorydata.category.filter((cat) => cat._id !== action.payload);
+            })
+            .addCase(deletecategory.rejected, (state, action) => {
+                state.deletecat.deleteloading = false;
+                state.deletecat.deleteerror = action.payload;
             })
     }
 })

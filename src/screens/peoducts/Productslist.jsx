@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { ActivityIndicator, FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-// import { AntDesign } from '@expo/vector-icons';
+import { AntDesign } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchProductsByCategory } from '../../redux/slices/ProductSlice';
@@ -12,13 +12,21 @@ const Productslist = () => {
 
     const dispatch = useDispatch();
 
-    const { catpro, catprodloading, catproderror } = useSelector((state) => state.products.categoryprods);
+    const { catpro, catprodloading, catproderror, page, hasMore } = useSelector((state) => state.products.categoryprods);
 
+    // Initial fetch — page 1
     useEffect(() => {
         if (categoryId) {
-            dispatch(fetchProductsByCategory(categoryId));
+            dispatch(fetchProductsByCategory({ categoryId, page: 1, limit: 10 }));
         }
     }, [categoryId]);
+
+    // Load more on scroll end
+    const loadMoreProducts = () => {
+        if (!catprodloading && hasMore) {
+            dispatch(fetchProductsByCategory({ categoryId, page: page + 1, limit: 10 }));
+        }
+    };
 
     const handleaddproducts = () => {
         navigation.navigate("addproducts", { categoryId })
@@ -37,10 +45,20 @@ const Productslist = () => {
                         <Image source={{ uri: item.imageurl }} width={55} height={55} resizeMode='cover' />
                     </View>
                     <View>
-                        <Text style={styles.productName}>{item.name}</Text>
+                        <Text style={styles.productName}>{item.name.slice(0, 26)}</Text>
                         <Text style={{ fontSize: 12, color: "#b55b02" }}> Stock : {item.stock}</Text>
                         <Text style={{ color: "#02b53b", fontSize: 15, fontWeight: "800" }}> ₹ {item.price}</Text>
                     </View>
+                </View>
+
+                <View style={styles.right}>
+                    <TouchableOpacity>
+                        <AntDesign name="edit" size={18} color="green" />
+                    </TouchableOpacity>
+
+                    <TouchableOpacity >
+                        <AntDesign name="delete" size={18} color="red" />
+                    </TouchableOpacity>
                 </View>
             </View>
         );
@@ -69,11 +87,19 @@ const Productslist = () => {
                 data={catpro}
                 keyExtractor={(item) => item._id}
                 renderItem={renderProducts}
+                onEndReached={loadMoreProducts}
+                onEndReachedThreshold={0.5}
+                ListFooterComponent={
+                    catprodloading && page > 1
+                        ? <ActivityIndicator size="small" style={{ marginVertical: 10 }} />
+                        : null
+                }
                 ListEmptyComponent={
                     <Text style={{ textAlign: "center", marginTop: 20 }}>
                         No Products Found
                     </Text>
-                } />
+                }
+            />
 
         </View>
     )
@@ -83,6 +109,9 @@ export default Productslist
 
 const styles = StyleSheet.create({
     productCard: {
+        flexDirection: "row",
+        alignItems: 'center',
+        justifyContent: 'space-between',
         backgroundColor: "#fff",
         padding: 15,
         marginHorizontal: 10,
@@ -98,5 +127,10 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         alignItems: "center",
         columnGap: 10,
+    },
+    right: {
+        flexDirection: "row",
+        columnGap: 10,
+        alignItems: "center",
     },
 });

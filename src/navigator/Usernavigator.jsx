@@ -8,7 +8,7 @@ const Stack = createNativeStackNavigator();
 
 const Usernavigator = () => {
     return (
-        <Stack.Navigator>
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
             <Stack.Screen name='user' component={Userscreen} />
         </Stack.Navigator>
     )

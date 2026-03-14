@@ -9,6 +9,7 @@ import { createproducts, fetchProductsByCategory } from '../../redux/slices/Prod
 const Addproducts = () => {
     const route = useRoute();
     const { categoryId } = route?.params;
+    console.log
     const [formdata, setFormdata] = useState({
         name: "",
         image: "",
@@ -83,7 +84,7 @@ const Addproducts = () => {
 
         if (createproducts.fulfilled.match(result)) {
             Alert.alert("Success", "Product Created");
-            dispatch(fetchProductsByCategory(categoryId)); // ✅ refreshes the list
+            dispatch(fetchProductsByCategory({ categoryId, page: 1, limit: 10 })); // ✅ refreshes the list
             navigation.goBack();                           // ✅ goes back to Productslist
         } else {
             Alert.alert("Error", result.payload);
